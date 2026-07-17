@@ -79,6 +79,102 @@ header{
   display:none;
 }
 .backbtn:hover{color:var(--text);border-color:var(--text-dim);}
+.tabs{
+  max-width:960px;
+  margin:18px auto 0;
+  display:flex;
+  gap:6px;
+  border-bottom:1px solid var(--border);
+}
+.tab{
+  background:none;
+  border:none;
+  color:var(--text-dim);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  padding:10px 4px 12px;
+  cursor:pointer;
+  position:relative;
+  margin-right:18px;
+}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--text);}
+.tab.active::after{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:-1px;
+  height:2px;
+  background:var(--red);
+}
+
+.week-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
+.day-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:16px 18px;
+}
+.day-card .dname{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;
+  letter-spacing:1px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.day-card .dname .dcount{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text-dim);
+  text-transform:none;
+  letter-spacing:0;
+}
+.day-chips{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:12px;
+}
+.day-chips:empty{margin-bottom:0;}
+.chip{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:6px 8px 6px 12px;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.chip .cgroup{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--text-dim);
+  text-transform:uppercase;
+}
+.chip .cremove{
+  background:none;
+  border:none;
+  color:var(--text-dim);
+  cursor:pointer;
+  font-size:14px;
+  line-height:1;
+  padding:2px 4px;
+}
+.chip .cremove:hover{color:var(--down);}
+.day-add{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.day-add select{flex:1;min-width:160px;}
 main{
   max-width:960px;
   margin:0 auto;
@@ -339,6 +435,10 @@ canvas{width:100%;height:160px;display:block;}
     </div>
     <button class="backbtn" id="backBtn" onclick="goBack()">&larr; voltar</button>
   </div>
+  <div class="tabs">
+    <button class="tab active" id="tab-home" onclick="goHome()">Grupos musculares</button>
+    <button class="tab" id="tab-week" onclick="goWeek()">Minha semana</button>
+  </div>
 </header>
 
 <main>
@@ -355,6 +455,11 @@ canvas{width:100%;height:160px;display:block;}
       <input type="text" id="newExName" placeholder="Adicionar exercício personalizado">
       <button class="primary" onclick="addCustomExercise()">Adicionar</button>
     </div>
+  </section>
+
+  <section class="view" id="view-week">
+    <p class="section-label">Planeje sua semana</p>
+    <div class="week-grid" id="weekGrid"></div>
   </section>
 
   <section class="view" id="view-exercise">
@@ -432,10 +537,30 @@ const DEFAULT_GROUPS = [
 
 const STORAGE_KEY = 'homil_data_v1';
 
+const DAYS = [
+  {id:'segunda', nome:'Segunda-feira'},
+  {id:'terca', nome:'Terça-feira'},
+  {id:'quarta', nome:'Quarta-feira'},
+  {id:'quinta', nome:'Quinta-feira'},
+  {id:'sexta', nome:'Sexta-feira'},
+  {id:'sabado', nome:'Sábado'},
+  {id:'domingo', nome:'Domingo'}
+];
+
+function emptyWeekPlan(){
+  let plan = {};
+  DAYS.forEach(d=>{ plan[d.id]=[]; });
+  return plan;
+}
+
 function loadData(){
   let raw = localStorage.getItem(STORAGE_KEY);
   if(raw){
-    try{ return JSON.parse(raw); }catch(e){}
+    try{
+      const parsed = JSON.parse(raw);
+      if(!parsed.weekPlan) parsed.weekPlan = emptyWeekPlan();
+      return parsed;
+    }catch(e){}
   }
   let groups = {};
   DEFAULT_GROUPS.forEach(g=>{
@@ -444,7 +569,7 @@ function loadData(){
       exercicios: g.exercicios.map(name=>({id:slug(g.id+'-'+name), nome:name, custom:false}))
     };
   });
-  return {groups, logs:{}};
+  return {groups, logs:{}, weekPlan: emptyWeekPlan()};
 }
 
 function saveData(){
@@ -463,7 +588,10 @@ const viewStack = [];
 function showView(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.getElementById('backBtn').style.display = id==='view-home' ? 'none' : 'inline-block';
+  const isTopLevel = (id==='view-home' || id==='view-week');
+  document.getElementById('backBtn').style.display = isTopLevel ? 'none' : 'inline-block';
+  document.getElementById('tab-home').classList.toggle('active', id==='view-home');
+  document.getElementById('tab-week').classList.toggle('active', id==='view-week');
 }
 
 function goHome(){
@@ -471,6 +599,12 @@ function goHome(){
   viewStack.length=0;
   renderGroups();
   showView('view-home');
+}
+
+function goWeek(){
+  currentGroup=null; currentExercise=null;
+  renderWeek();
+  showView('view-week');
 }
 
 function goBack(){
@@ -551,6 +685,77 @@ function addCustomExercise(){
   saveData();
   input.value='';
   renderGroupView(currentGroup);
+}
+
+function allExercisesOptions(){
+  let optionsHtml = '';
+  Object.keys(DATA.groups).forEach(gid=>{
+    const g = DATA.groups[gid];
+    optionsHtml += `<optgroup label="${g.nome}">`;
+    g.exercicios.forEach(ex=>{
+      optionsHtml += `<option value="${ex.id}">${ex.nome}</option>`;
+    });
+    optionsHtml += `</optgroup>`;
+  });
+  return optionsHtml;
+}
+
+function exerciseLabel(exId){
+  const found = findExercise(exId);
+  if(!found) return {nome:'Exercício removido', grupo:''};
+  return {nome:found.exercise.nome, grupo:DATA.groups[found.group].nome};
+}
+
+function renderWeek(){
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+  DAYS.forEach(day=>{
+    const assigned = DATA.weekPlan[day.id] || [];
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    const chips = assigned.map((exId,idx)=>{
+      const info = exerciseLabel(exId);
+      return `<div class="chip">
+        <div>
+          <div>${info.nome}</div>
+          <div class="cgroup">${info.grupo}</div>
+        </div>
+        <button class="cremove" onclick="removeFromDay('${day.id}', ${idx})">&times;</button>
+      </div>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="dname">${day.nome} <span class="dcount">${assigned.length ? assigned.length+' exercício(s)' : 'dia livre'}</span></div>
+      <div class="day-chips">${chips}</div>
+      <div class="day-add">
+        <select id="select-${day.id}">
+          <option value="">Escolher exercício...</option>
+          ${allExercisesOptions()}
+        </select>
+        <button class="primary" onclick="addToDay('${day.id}')">Adicionar</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function addToDay(dayId){
+  const select = document.getElementById('select-'+dayId);
+  const exId = select.value;
+  if(!exId) return;
+  if(!DATA.weekPlan[dayId]) DATA.weekPlan[dayId] = [];
+  if(DATA.weekPlan[dayId].includes(exId)){
+    alert('Esse exercício já está nesse dia.');
+    return;
+  }
+  DATA.weekPlan[dayId].push(exId);
+  saveData();
+  renderWeek();
+}
+
+function removeFromDay(dayId, idx){
+  DATA.weekPlan[dayId].splice(idx,1);
+  saveData();
+  renderWeek();
 }
 
 function findExercise(exId){
