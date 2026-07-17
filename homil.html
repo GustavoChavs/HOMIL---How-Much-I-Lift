@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>HOMIL — How Much I Lift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14171a;
+  --panel:#1c2024;
+  --panel-2:#20252a;
+  --border:#2c3136;
+  --text:#eef1f3;
+  --text-dim:#8f9aa3;
+  --red:#d7263d;
+  --blue:#1e6fb0;
+  --yellow:#f2b134;
+  --green:#2f9e44;
+  --up:#3fb950;
+  --down:#e5484d;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Sans',sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--red);color:#fff;}
+.wordmark{
+  font-family:'Bebas Neue',sans-serif;
+  letter-spacing:2px;
+}
+header{
+  padding:28px 20px 20px;
+  border-bottom:1px solid var(--border);
+  position:sticky;
+  top:0;
+  background:rgba(20,23,26,0.92);
+  backdrop-filter:blur(6px);
+  z-index:10;
+}
+.header-inner{
+  max-width:960px;
+  margin:0 auto;
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.brand{display:flex;align-items:baseline;gap:12px;cursor:pointer;}
+.brand .logo{
+  font-size:38px;
+  line-height:1;
+  color:var(--text);
+}
+.brand .logo span{color:var(--red);}
+.brand .slogan{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--text-dim);
+}
+.backbtn{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--text-dim);
+  background:none;
+  border:1px solid var(--border);
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  display:none;
+}
+.backbtn:hover{color:var(--text);border-color:var(--text-dim);}
+main{
+  max-width:960px;
+  margin:0 auto;
+  padding:28px 20px 80px;
+}
+.view{display:none;}
+.view.active{display:block;}
+
+.section-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  margin:0 0 16px;
+}
+.group-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:14px;
+}
+.group-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-left:3px solid var(--accent, var(--red));
+  border-radius:10px;
+  padding:20px;
+  cursor:pointer;
+  transition:border-color .15s, transform .15s, background .15s;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+.group-card:hover{border-color:var(--border);border-left-color:var(--accent, var(--red));transform:translateY(-2px);background:var(--panel-2);}
+.group-card .gtop{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.group-card .gicon{
+  flex-shrink:0;
+  opacity:0.55;
+  color:var(--accent, var(--red));
+}
+.group-card .gicon svg{display:block;}
+.group-card .gname{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px;
+  letter-spacing:1px;
+  display:block;
+}
+.group-card .gcount{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--text-dim);
+  margin-top:4px;
+  display:block;
+}
+
+.exercise-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.exercise-row{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  gap:10px;
+}
+.exercise-row:hover{border-color:var(--text-dim);}
+.exercise-row .ename{font-weight:600;font-size:15px;}
+.exercise-row .ebest{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--text-dim);
+  white-space:nowrap;
+}
+.exercise-row .ebest b{color:var(--text);}
+.custom-badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  color:var(--yellow);
+  border:1px solid var(--yellow);
+  padding:1px 5px;
+  border-radius:4px;
+  margin-left:8px;
+}
+.add-exercise{
+  margin-top:16px;
+  display:flex;
+  gap:8px;
+}
+.add-exercise input{flex:1;}
+
+input, select{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:7px;
+  padding:12px;
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:15px;
+}
+input:focus, select:focus{outline:2px solid var(--red);outline-offset:1px;}
+button.primary{
+  background:var(--red);
+  color:#fff;
+  border:none;
+  border-radius:7px;
+  padding:12px 18px;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+}
+button.primary:hover{filter:brightness(1.1);}
+button.ghost{
+  background:none;
+  border:1px solid var(--border);
+  color:var(--text-dim);
+  border-radius:7px;
+  padding:12px 16px;
+  font-size:14px;
+  cursor:pointer;
+}
+button.ghost:hover{color:var(--text);border-color:var(--text-dim);}
+
+.exdetail-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-bottom:20px;
+}
+.exdetail-head h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:34px;
+  letter-spacing:1px;
+  margin:0;
+}
+.exdetail-head .egroup{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--text-dim);
+  text-transform:uppercase;
+}
+.delta{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  padding:6px 10px;
+  border-radius:6px;
+  white-space:nowrap;
+}
+.delta.up{color:var(--up);background:rgba(63,185,80,0.1);}
+.delta.down{color:var(--down);background:rgba(229,72,77,0.1);}
+.delta.flat{color:var(--text-dim);background:rgba(255,255,255,0.04);}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+  margin-bottom:16px;
+}
+.log-form{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:10px;
+}
+.log-form label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text-dim);
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:6px;
+}
+.log-form .field{display:flex;flex-direction:column;}
+.log-form input{width:100%;}
+.log-actions{
+  grid-column:1 / -1;
+  display:flex;
+  gap:10px;
+  margin-top:4px;
+  flex-wrap:wrap;
+}
+
+.barbell-wrap{
+  display:flex;
+  justify-content:center;
+  padding:10px 0 4px;
+}
+.plate-legend{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--text-dim);
+}
+.plate-legend span{display:flex;align-items:center;gap:5px;}
+.swatch{width:10px;height:10px;border-radius:2px;display:inline-block;}
+
+table.history{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+table.history th{
+  text-align:left;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  padding:6px 8px;
+  border-bottom:1px solid var(--border);
+}
+table.history td{
+  padding:8px;
+  border-bottom:1px solid var(--border);
+  font-family:'IBM Plex Mono',monospace;
+}
+table.history tr:last-child td{border-bottom:none;}
+.empty-state{
+  text-align:center;
+  color:var(--text-dim);
+  padding:30px 10px;
+  font-size:13px;
+}
+.empty-state b{color:var(--text);display:block;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:6px;}
+
+canvas{width:100%;height:160px;display:block;}
+
+@media(max-width:600px){
+  .log-form{grid-template-columns:1fr 1fr;}
+  .brand .logo{font-size:32px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand" onclick="goHome()">
+      <span class="logo wordmark">HOM<span>I</span>L</span>
+      <span class="slogan">How Much I Lift</span>
+    </div>
+    <button class="backbtn" id="backBtn" onclick="goBack()">&larr; voltar</button>
+  </div>
+</header>
+
+<main>
+
+  <section class="view active" id="view-home">
+    <p class="section-label">Grupos musculares</p>
+    <div class="group-grid" id="groupGrid"></div>
+  </section>
+
+  <section class="view" id="view-group">
+    <p class="section-label" id="groupLabel">Exercícios</p>
+    <div class="exercise-list" id="exerciseList"></div>
+    <div class="add-exercise">
+      <input type="text" id="newExName" placeholder="Adicionar exercício personalizado">
+      <button class="primary" onclick="addCustomExercise()">Adicionar</button>
+    </div>
+  </section>
+
+  <section class="view" id="view-exercise">
+    <div class="exdetail-head">
+      <div>
+        <span class="egroup" id="exGroupLabel"></span>
+        <h2 id="exName"></h2>
+      </div>
+      <div id="exDelta"></div>
+    </div>
+
+    <div class="panel">
+      <p class="section-label" style="margin-bottom:12px;">Registrar treino</p>
+      <div class="log-form">
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="logDate">
+        </div>
+        <div class="field">
+          <label>Peso (kg)</label>
+          <input type="number" id="logPeso" step="0.5" min="0" placeholder="80">
+        </div>
+        <div class="field">
+          <label>Séries</label>
+          <input type="number" id="logSeries" min="1" placeholder="4">
+        </div>
+        <div class="field">
+          <label>Repetições</label>
+          <input type="number" id="logReps" min="1" placeholder="10">
+        </div>
+        <div class="log-actions">
+          <button class="primary" onclick="saveLog()">Salvar treino</button>
+          <button class="ghost" onclick="repeatLast()">Repetir último treino</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="section-label" style="margin-bottom:4px;">Carga atual</p>
+      <div class="barbell-wrap"><svg id="barbellSvg" width="320" height="90" viewBox="0 0 320 90"></svg></div>
+      <div class="plate-legend">
+        <span><i class="swatch" style="background:#d7263d"></i>25kg</span>
+        <span><i class="swatch" style="background:#1e6fb0"></i>20kg</span>
+        <span><i class="swatch" style="background:#f2b134"></i>15kg</span>
+        <span><i class="swatch" style="background:#2f9e44"></i>10kg</span>
+        <span><i class="swatch" style="background:#e9ecef"></i>5kg</span>
+        <span><i class="swatch" style="background:#111"></i>2.5kg</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="section-label" style="margin-bottom:10px;">Evolução</p>
+      <canvas id="progressChart"></canvas>
+    </div>
+
+    <div class="panel">
+      <p class="section-label" style="margin-bottom:10px;">Histórico</p>
+      <div id="historyWrap"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const DEFAULT_GROUPS = [
+  {id:'peito', nome:'Peito', exercicios:['Supino reto','Supino inclinado','Supino declinado','Crucifixo','Crossover','Flexão de braço']},
+  {id:'costas', nome:'Costas', exercicios:['Puxada frente','Puxada triângulo','Remada baixa','Remada curvada','Barra fixa','Levantamento terra']},
+  {id:'pernas', nome:'Pernas', exercicios:['Agachamento livre','Leg press','Cadeira extensora','Cadeira flexora','Afundo','Stiff','Mesa flexora']},
+  {id:'ombros', nome:'Ombros', exercicios:['Desenvolvimento militar','Desenvolvimento com halteres','Elevação lateral','Elevação frontal','Remada alta','Crucifixo invertido']},
+  {id:'biceps', nome:'Bíceps', exercicios:['Rosca direta','Rosca alternada','Rosca martelo','Rosca scott','Rosca concentrada']},
+  {id:'triceps', nome:'Tríceps', exercicios:['Tríceps pulley','Tríceps testa','Tríceps corda','Mergulho no banco','Tríceps francês']},
+  {id:'abdomen', nome:'Abdômen', exercicios:['Abdominal reto','Abdominal infra','Prancha','Abdominal oblíquo']},
+  {id:'panturrilha', nome:'Panturrilha', exercicios:['Elevação de panturrilha em pé','Elevação de panturrilha sentado','Panturrilha no leg press']}
+];
+
+const STORAGE_KEY = 'homil_data_v1';
+
+function loadData(){
+  let raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    try{ return JSON.parse(raw); }catch(e){}
+  }
+  let groups = {};
+  DEFAULT_GROUPS.forEach(g=>{
+    groups[g.id] = {
+      nome:g.nome,
+      exercicios: g.exercicios.map(name=>({id:slug(g.id+'-'+name), nome:name, custom:false}))
+    };
+  });
+  return {groups, logs:{}};
+}
+
+function saveData(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA));
+}
+
+function slug(str){
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+
+let DATA = loadData();
+let currentGroup = null;
+let currentExercise = null;
+const viewStack = [];
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('backBtn').style.display = id==='view-home' ? 'none' : 'inline-block';
+}
+
+function goHome(){
+  currentGroup=null; currentExercise=null;
+  viewStack.length=0;
+  renderGroups();
+  showView('view-home');
+}
+
+function goBack(){
+  if(currentExercise){
+    currentExercise=null;
+    renderGroupView(currentGroup);
+    showView('view-group');
+  } else {
+    goHome();
+  }
+}
+
+const ACCENTS = ['#d7263d','#1e6fb0','#f2b134','#2f9e44','#8a5cf6','#e06f2f','#3fb0a8','#c94f9c'];
+
+const DUMBBELL_ICON = `
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="3" y="12" width="4" height="6" rx="1" fill="currentColor"/>
+  <rect x="23" y="12" width="4" height="6" rx="1" fill="currentColor"/>
+  <rect x="7" y="9" width="3" height="12" rx="1" fill="currentColor"/>
+  <rect x="20" y="9" width="3" height="12" rx="1" fill="currentColor"/>
+  <rect x="10" y="14" width="10" height="2" fill="currentColor"/>
+</svg>`;
+
+function renderGroups(){
+  const grid = document.getElementById('groupGrid');
+  grid.innerHTML='';
+  Object.keys(DATA.groups).forEach((gid,i)=>{
+    const g = DATA.groups[gid];
+    const accent = ACCENTS[i % ACCENTS.length];
+    const card = document.createElement('div');
+    card.className='group-card';
+    card.style.setProperty('--accent', accent);
+    card.onclick=()=>{ currentGroup=gid; renderGroupView(gid); showView('view-group'); };
+    card.innerHTML = `
+      <div class="gtop">
+        <div>
+          <span class="gname">${g.nome}</span>
+          <span class="gcount">${g.exercicios.length} exercícios</span>
+        </div>
+        <div class="gicon">${DUMBBELL_ICON}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function bestFor(exId){
+  const logs = DATA.logs[exId] || [];
+  if(logs.length===0) return null;
+  return logs.reduce((max,l)=> l.peso>max.peso ? l : max, logs[0]);
+}
+
+function renderGroupView(gid){
+  const g = DATA.groups[gid];
+  document.getElementById('groupLabel').textContent = g.nome;
+  const list = document.getElementById('exerciseList');
+  list.innerHTML='';
+  g.exercicios.forEach(ex=>{
+    const best = bestFor(ex.id);
+    const row = document.createElement('div');
+    row.className='exercise-row';
+    row.onclick=()=>{ currentExercise=ex.id; renderExerciseView(gid, ex.id); showView('view-exercise'); };
+    row.innerHTML = `
+      <span class="ename">${ex.nome}${ex.custom?'<span class="custom-badge">custom</span>':''}</span>
+      <span class="ebest">${best ? `<b>${best.peso}kg</b> PR` : 'sem registro'}</span>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function addCustomExercise(){
+  const input = document.getElementById('newExName');
+  const name = input.value.trim();
+  if(!name) return;
+  const g = DATA.groups[currentGroup];
+  const id = slug(currentGroup+'-'+name+'-'+Date.now());
+  g.exercicios.push({id, nome:name, custom:true});
+  saveData();
+  input.value='';
+  renderGroupView(currentGroup);
+}
+
+function findExercise(exId){
+  for(const gid in DATA.groups){
+    const found = DATA.groups[gid].exercicios.find(e=>e.id===exId);
+    if(found) return {group:gid, exercise:found};
+  }
+  return null;
+}
+
+function renderExerciseView(gid, exId){
+  const g = DATA.groups[gid];
+  const ex = g.exercicios.find(e=>e.id===exId);
+  document.getElementById('exGroupLabel').textContent = g.nome;
+  document.getElementById('exName').textContent = ex.nome;
+  document.getElementById('logDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('logPeso').value='';
+  document.getElementById('logSeries').value='';
+  document.getElementById('logReps').value='';
+  renderDelta(exId);
+  renderBarbell(exId);
+  renderHistory(exId);
+  renderChart(exId);
+}
+
+function sortedLogs(exId){
+  return (DATA.logs[exId]||[]).slice().sort((a,b)=> a.date.localeCompare(b.date));
+}
+
+function renderDelta(exId){
+  const logs = sortedLogs(exId);
+  const box = document.getElementById('exDelta');
+  if(logs.length<2){ box.innerHTML=''; return; }
+  const last = logs[logs.length-1];
+  const prev = logs[logs.length-2];
+  const diff = last.peso - prev.peso;
+  let cls='flat', label='sem variação';
+  if(diff>0){ cls='up'; label=`▲ +${diff}kg`; }
+  else if(diff<0){ cls='down'; label=`▼ ${diff}kg`; }
+  box.innerHTML = `<span class="delta ${cls}">${label} vs treino anterior</span>`;
+}
+
+function renderHistory(exId){
+  const logs = sortedLogs(exId).slice().reverse();
+  const wrap = document.getElementById('historyWrap');
+  if(logs.length===0){
+    wrap.innerHTML = `<div class="empty-state"><b>Nenhum treino ainda</b>Registre sua primeira carga acima para começar o histórico.</div>`;
+    return;
+  }
+  let rows = logs.map(l=>`<tr><td>${formatDate(l.date)}</td><td>${l.peso}kg</td><td>${l.series}x${l.reps}</td></tr>`).join('');
+  wrap.innerHTML = `<table class="history"><thead><tr><th>Data</th><th>Peso</th><th>Séries x Reps</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function formatDate(d){
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function saveLog(){
+  const peso = parseFloat(document.getElementById('logPeso').value);
+  const series = parseInt(document.getElementById('logSeries').value);
+  const reps = parseInt(document.getElementById('logReps').value);
+  const date = document.getElementById('logDate').value;
+  if(!peso || !series || !reps || !date){
+    alert('Preencha peso, séries, repetições e data.');
+    return;
+  }
+  if(!DATA.logs[currentExercise]) DATA.logs[currentExercise]=[];
+  DATA.logs[currentExercise].push({peso, series, reps, date});
+  saveData();
+  renderExerciseView(currentGroup, currentExercise);
+  renderGroupView(currentGroup);
+}
+
+function repeatLast(){
+  const logs = sortedLogs(currentExercise);
+  if(logs.length===0){ alert('Ainda não há treino anterior para repetir.'); return; }
+  const last = logs[logs.length-1];
+  document.getElementById('logPeso').value = last.peso;
+  document.getElementById('logSeries').value = last.series;
+  document.getElementById('logReps').value = last.reps;
+  document.getElementById('logDate').value = new Date().toISOString().slice(0,10);
+}
+
+const PLATES = [
+  {kg:25, color:'#d7263d', h:70},
+  {kg:20, color:'#1e6fb0', h:62},
+  {kg:15, color:'#f2b134', h:54},
+  {kg:10, color:'#2f9e44', h:46},
+  {kg:5, color:'#e9ecef', h:36},
+  {kg:2.5, color:'#111111', h:28},
+  {kg:1.25, color:'#adb5bd', h:20}
+];
+
+function platesForWeight(total, barWeight=20){
+  let perSide = (total - barWeight)/2;
+  if(perSide < 0) perSide = 0;
+  let remaining = perSide;
+  let result = [];
+  for(const p of PLATES){
+    while(remaining >= p.kg - 0.01){
+      result.push(p);
+      remaining -= p.kg;
+    }
+  }
+  return result;
+}
+
+function renderBarbell(exId){
+  const svg = document.getElementById('barbellSvg');
+  const best = bestFor(exId);
+  const weight = best ? best.peso : 20;
+  const plates = platesForWeight(weight);
+  const cx = 160, barY = 45;
+  let svgContent = `<line x1="20" y1="${barY}" x2="300" y2="${barY}" stroke="#5a6268" stroke-width="6" />`;
+  let leftX = cx - 20;
+  plates.forEach(p=>{
+    leftX -= 6;
+    svgContent += `<rect x="${leftX-8}" y="${barY-p.h/2}" width="8" height="${p.h}" rx="2" fill="${p.color}" stroke="#000" stroke-opacity="0.2"/>`;
+    leftX -= 8;
+  });
+  let rightX = cx + 20;
+  plates.forEach(p=>{
+    rightX += 6;
+    svgContent += `<rect x="${rightX}" y="${barY-p.h/2}" width="8" height="${p.h}" rx="2" fill="${p.color}" stroke="#000" stroke-opacity="0.2"/>`;
+    rightX += 8;
+  });
+  svgContent += `<text x="160" y="80" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#8f9aa3">${weight}kg total</text>`;
+  svg.innerHTML = svgContent;
+}
+
+function renderChart(exId){
+  const canvas = document.getElementById('progressChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 160 * dpr;
+  ctx.scale(dpr,dpr);
+  const w = rect.width, h = 160;
+  ctx.clearRect(0,0,w,h);
+
+  const logs = sortedLogs(exId);
+  if(logs.length===0){
+    ctx.fillStyle='#8f9aa3';
+    ctx.font='12px IBM Plex Mono';
+    ctx.fillText('Sem dados suficientes para o gráfico', 10, h/2);
+    return;
+  }
+  const pad = 30;
+  const weights = logs.map(l=>l.peso);
+  const min = Math.min(...weights), max = Math.max(...weights);
+  const range = (max-min) || 1;
+
+  ctx.strokeStyle='#2c3136';
+  ctx.lineWidth=1;
+  for(let i=0;i<=3;i++){
+    const y = pad + (h-pad*1.5)*(i/3);
+    ctx.beginPath();
+    ctx.moveTo(pad,y);
+    ctx.lineTo(w-10,y);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle='#d7263d';
+  ctx.lineWidth=2;
+  ctx.beginPath();
+  logs.forEach((l,i)=>{
+    const x = pad + (w-pad-20)*(logs.length===1?0:i/(logs.length-1));
+    const y = (h-pad*0.5) - ((l.peso-min)/range)*(h-pad*1.5);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  ctx.fillStyle='#d7263d';
+  logs.forEach((l,i)=>{
+    const x = pad + (w-pad-20)*(logs.length===1?0:i/(logs.length-1));
+    const y = (h-pad*0.5) - ((l.peso-min)/range)*(h-pad*1.5);
+    ctx.beginPath();
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  ctx.fillStyle='#8f9aa3';
+  ctx.font='10px IBM Plex Mono';
+  ctx.fillText(max+'kg', 0, pad+4);
+  ctx.fillText(min+'kg', 0, h-pad*0.5+4);
+}
+
+renderGroups();
+window.addEventListener('resize', ()=>{ if(currentExercise) renderChart(currentExercise); });
+</script>
+
+</body>
+</html>
